@@ -41,8 +41,8 @@ def buy_stock(ticker, shares_to_buy, current_price):
     
     if ticker in st.session_state.portfolio:
         #Calculate new average cost basis for existing shares
-        total_shares = portfolio[ticker]["shares"] + shares_to_buy
-        old_total_cost = portfolio[ticker]["shares"] * portfolio[ticker]["avg_cost"]
+        total_shares = st.session_state.portfolio[ticker]["shares"] + shares_to_buy
+        old_total_cost = st.session_state.portfolio[ticker]["shares"] * st.session_state.portfolio[ticker]["avg_cost"]
         new_avg_cost = (old_total_cost + total_cost) / total_shares
         
         st.session_state.portfolio[ticker]["shares"] = total_shares
@@ -71,12 +71,12 @@ def sell_stock(ticker,shares_to_sell,current_price):
     global account_cash
     
     #Checks to see if ticker symbol is in portfolio
-    if ticker not in portfolio:
+    if ticker not in st.session_state.portfolio:
         print("Error: No shares owned!")
         return False
         
     #Checks to see if enough shares are owned
-    if shares_to_sell > portfolio[ticker]["shares"]:
+    if shares_to_sell > st.session_state.portfolio[ticker]["shares"]:
         print("Error: not enough shares to sell")
         return False
         
@@ -84,17 +84,17 @@ def sell_stock(ticker,shares_to_sell,current_price):
     cash_gained = shares_to_sell * current_price
     
     #Update account balance
-    account_cash += cash_gained
+    st.session_state.account_cash += cash_gained
     
     #Subtract shares_to_sell from portfolio
-    portfolio[ticker]["shares"] -= shares_to_sell
+    st.session_state.portfolio[ticker]["shares"] -= shares_to_sell
     
     #If shares owned is zero, delete ticker symbol from portfolio
-    if portfolio[ticker]["shares"] == 0:
-        del portfolio[ticker]
+    if st.session_state.portfolio[ticker]["shares"] == 0:
+        del st.session_state.portfolio[ticker]
         
     #Add sell record to transaction_history
-    transaction_history.append({
+    st.session_state.transaction_history.append({
         "Action": "SELL",
         "Ticker": ticker,
         "Shares": shares_to_sell,
